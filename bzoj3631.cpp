@@ -127,8 +127,9 @@ void init() {
     memset(head, -1, sizeof(head));
 }
 
+int ans[MAXN];
 int main() {
-    freopen("input.txt", "r", stdin);
+    //freopen("input.txt", "r", stdin);
     init();
 
     int nHouse;
@@ -146,10 +147,13 @@ int main() {
     for(int i = 1; i < nHouse; ++i) insert(arr[i], arr[i+1]);
 
     for(int i = 1; i <= nHouse; ++i) {
-        int ans = 0;
-        ans -= (arr[i] != 1);
-        ans += query(1, 1, numIdx, num[i], num[i]);
-        printf("%d\n", ans);
+        ans[i] = query(1, 1, numIdx, num[i], num[i]);
+    }
+
+    for(int i = 2; i <= nHouse; ++i) ans[arr[i]]--;
+
+    for(int i = 1; i <= nHouse; ++i) {
+        printf("%d\n", ans[i]);
     }
 
 
