@@ -18,12 +18,14 @@ struct edge
 } E[MAXN << 1];
 
 void add_two_edge(int from, int to) {
+    ++eidx;
     E[eidx].to = to;
     E[eidx].nxt = head[from];
-    head[from] = eidx++;
+    head[from] = eidx;
+    ++eidx;
     E[eidx].to = from;
     E[eidx].nxt = head[to];
-    head[to] = eidx++;
+    head[to] = eidx;
 }
 
 
@@ -35,7 +37,7 @@ void dfs_1(int x, int father, int deep) {
     fathers[x] = father; deeps[x] = deep; sizes[x] = 1;
 
     int heavy = 0;
-    for(int i = head[x]; i != -1; i = E[i].nxt) {
+    for(int i = head[x]; i != 0; i = E[i].nxt) {
         int v = E[i].to;
         if(v != father) {
             dfs_1(v, x, deep+1);
@@ -54,7 +56,7 @@ void dfs_2(int x, int father) {
 
     if(heaviest[x]) dfs_2(heaviest[x], x);
 
-    for(int i = head[x]; i != -1; i = E[i].nxt) {
+    for(int i = head[x]; i != 0; i = E[i].nxt) {
         int v = E[i].to;
         if(v != father && v != heaviest[x])
             dfs_2(v, x);
@@ -63,7 +65,7 @@ void dfs_2(int x, int father) {
 
 struct treeNode {
     int sum, delta;
-} T[MAXN << 1];
+} T[MAXN << 2];
 
 void update(int idx) {
     T[idx].sum = T[leftIdx].sum + T[rightIdx].sum;
@@ -72,9 +74,9 @@ void update(int idx) {
 void pushDown(int idx, int L, int R, int mid) {
     if(T[idx].delta) {
         T[leftIdx].sum += T[idx].delta * (mid - L + 1);
-        T[leftIdx].delta = T[idx].delta;
+        T[leftIdx].delta += T[idx].delta;
         T[rightIdx].sum += T[idx].delta * (R - mid);
-        T[rightIdx].delta = T[idx].delta;
+        T[rightIdx].delta += T[idx].delta;
         T[idx].delta = 0;
     }
 }
@@ -91,6 +93,8 @@ void addOneToRange(int idx, int L, int R, int LRange, int RRange) {
 
     if(LRange <= mid) addOneToRange(leftIdx, L, mid, LRange, RRange);
     if(mid < RRange) addOneToRange(rightIdx, mid+1, R, LRange, RRange);
+
+    update(idx);
 }
 
 int query(int idx, int L, int R, int LRange, int RRange) {
@@ -122,15 +126,10 @@ void insert(int u, int v) {
     addOneToRange(1, 1, numIdx, num[u], num[v]);
 }
 
-void init() {
-    eidx = 0;
-    memset(head, -1, sizeof(head));
-}
 
 int ans[MAXN];
 int main() {
-    //freopen("input.txt", "r", stdin);
-    init();
+    // freopen("input.txt", "r", stdin);
 
     int nHouse;
     int from, to;
